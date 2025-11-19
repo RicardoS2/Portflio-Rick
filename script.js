@@ -1,6 +1,3 @@
-// script.js - CÓDIGO FINAL OTIMIZADO COM NOVO SWITCH
-
-// --- CONFIGS E CERTIFICADOS ---
 const certificationsData = [
     {
         name: 'Minicurso IBRACON',
@@ -40,21 +37,17 @@ const certificationsData = [
     },
 ];
 
-// --- SELETORES ---
 const root = document.documentElement;
 const certContainer = document.getElementById('secao-certificados');
 const projContainer = document.getElementById('secao-projetos');
-
-// --- THEME SWITCHER (ATUALIZADO PARA O NOVO SWITCH) ---
 const themeInput = document.getElementById('input');
 
 function setTheme(theme) {
     root.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
 
-    // Sincroniza o estado do novo input
     if (themeInput) {
-        themeInput.checked = theme === 'dark';
+        themeInput.checked = theme === 'light';
     }
 }
 
@@ -64,33 +57,28 @@ window.toggleTheme = function () {
     setTheme(newTheme);
 };
 
-// Inicializa o tema ao carregar
-const initialTheme = localStorage.getItem('theme') || 'dark';
-setTheme(initialTheme);
-// Força a sincronização inicial do checkbox (caso o localStorage esteja vazio)
-if (themeInput) {
-    themeInput.checked = initialTheme === 'dark';
-}
-
-// --- CERTIFICADOS ---
 function renderCertificates() {
     if (!certContainer) return;
     const tmpl = document.getElementById('modelo-certificado');
     certContainer.innerHTML = '';
+
     certificationsData.forEach((cert, index) => {
         const clone = tmpl.content.cloneNode(true);
         const card = clone.querySelector('.card');
-        // animação em cascata via delay CSS custom property
+
+        card.classList.add('certificado-card');
+
         card.style.setProperty('--delay', `${0.2 + index * 0.1}s`);
+
         clone.querySelector('.icone-recurso').textContent = cert.icon;
         clone.querySelector('.nome-certificado').textContent = cert.name;
         clone.querySelector('.desc-certificado').textContent = cert.desc;
+
         card.addEventListener('click', () => window.open(cert.url, '_blank'));
         certContainer.appendChild(clone);
     });
 }
 
-// --- FETCH GITHUB PROJECTS (usa cache) ---
 async function fetchGitHubProjects() {
     const CACHE_KEY = 'github_repos_cache_v3';
     const EXP = 60 * 60 * 1000;
@@ -101,16 +89,29 @@ async function fetchGitHubProjects() {
         try {
             const parsed = JSON.parse(cached);
             if (Date.now() - parsed.timestamp < EXP) return parsed.data;
-        } catch (e) {
-            /* ignore parse errors */
-        }
+        } catch (e) {}
     }
 
+    const GITHUB_API_URL =
+        'https://api.github.com/users/RicardoS2/repos?per_page=100';
+
     try {
-        const API_ENDPOINT = `${window.location.origin}${api}`;
-        const res = await fetch(API_ENDPOINT);
-        if (!res.ok) throw new Error('Erro ao consultar API');
-        const data = await res.json();
+        const res = await fetch(GITHUB_API_URL);
+        if (!res.ok) throw new Error('Erro ao consultar API do GitHub');
+        const rawData = await res.json();
+
+        const data = rawData
+            .filter((repo) => !repo.fork && repo.description)
+            .map((repo) => ({
+                name: repo.name,
+                description: repo.description,
+                language: repo.language,
+                stars: repo.stargazers_count,
+                url: repo.html_url,
+                owner: repo.owner.login,
+                updatedAt: repo.updated_at,
+            }));
+
         localStorage.setItem(
             CACHE_KEY,
             JSON.stringify({ timestamp: Date.now(), data }),
@@ -129,32 +130,35 @@ async function fetchGitHubProjects() {
     }
 }
 
-// --- BUSCA IMAGEM README (tenta extrair primeira imagem) ---
 async function fetchReadmeImage(owner, repo) {
     const CACHE_KEY = `readme_img_${repo}`;
     const cached = sessionStorage.getItem(CACHE_KEY);
     if (cached) return cached === 'null' ? null : cached;
 
+    const README_URL = `https://api.github.com/repos/${owner}/${repo}/readme`;
+
     try {
-        const res = await fetch(
-            `https://api.github.com/repos/${owner}/${repo}/readme`,
-        );
+        const res = await fetch(README_URL);
         if (!res.ok) {
             sessionStorage.setItem(CACHE_KEY, 'null');
             return null;
         }
         const data = await res.json();
         const content = atob(data.content || '');
+
         const match =
             content.match(/!\[.*?\]\((.*?)\)/) ||
             content.match(/<img[^>]+src=["']([^"']+)["']/);
+
         let url = match ? match[1] : null;
+
         if (url && !url.startsWith('http')) {
             url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${url.replace(
                 /^\.\//,
                 '',
             )}`;
         }
+
         sessionStorage.setItem(CACHE_KEY, url || 'null');
         return url;
     } catch {
@@ -163,8 +167,7 @@ async function fetchReadmeImage(owner, repo) {
     }
 }
 
-// --- EXPANDIR DESCRIÇÃO ---
-function toggleProjectDescription(event) {
+window.toggleProjectDescription = function (event) {
     event.stopPropagation();
     const button = event.currentTarget;
     const description = button.previousElementSibling;
@@ -174,20 +177,22 @@ function toggleProjectDescription(event) {
         description.classList.remove('expanded');
         card.classList.remove('expanded');
         button.textContent = 'Ver Mais';
+        button.setAttribute('aria-expanded', 'false');
     } else {
         description.classList.add('expanded');
         card.classList.add('expanded');
         button.textContent = 'Ver Menos';
+        button.setAttribute('aria-expanded', 'true');
     }
-}
+};
 
-// --- RENDER PROJETOS (sem inline CSS no HTML) ---
 async function renderProjects() {
     if (!projContainer) return;
+
     projContainer.innerHTML = '';
     const loading = document.createElement('p');
     loading.className = 'placeholder';
-    loading.textContent = 'Carregando...';
+    loading.textContent = 'Carregando projetos...';
     projContainer.appendChild(loading);
 
     const repos = await fetchGitHubProjects();
@@ -207,10 +212,10 @@ async function renderProjects() {
     const sorted = repos
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
         .slice(0, 10);
+
     projContainer.innerHTML = '';
     const tmpl = document.getElementById('modelo-projeto');
 
-    // medidor de altura (temporário, invisível)
     const tempDiv = document.createElement('div');
     tempDiv.style.cssText =
         'visibility:hidden;position:absolute;box-sizing:border-box;width:216px;line-height:1.4;font-size:0.9rem;';
@@ -223,7 +228,6 @@ async function renderProjects() {
         const descriptionElement = clone.querySelector('.desc-projeto');
         const expandButton = clone.querySelector('.btn-expandir-desc');
 
-        // delay por cascata (usado apenas para timing via style property)
         card.style.setProperty('--delay', `${0.1 + index * 0.1}s`);
 
         clone.querySelector('.nome-projeto').textContent =
@@ -234,12 +238,18 @@ async function renderProjects() {
         clone.querySelector('.estrelas-projeto').textContent =
             repo.stars > 0 ? `★ ${repo.stars}` : '';
 
+        card.setAttribute('data-url', repo.url);
+
         tempDiv.textContent = repo.description || '';
         const fullHeight = tempDiv.offsetHeight;
+
         if (fullHeight > HEIGHT_LIMIT_PX) {
             expandButton.style.display = 'block';
             expandButton.textContent = 'Ver Mais';
-            expandButton.addEventListener('click', toggleProjectDescription);
+            expandButton.addEventListener(
+                'click',
+                window.toggleProjectDescription,
+            );
             descriptionElement.classList.remove('expanded');
             card.classList.remove('expanded');
         } else {
@@ -247,12 +257,18 @@ async function renderProjects() {
             descriptionElement.classList.add('expanded');
         }
 
-        card.addEventListener('click', () => window.open(repo.url, '_blank'));
+        card.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('btn-expandir-desc')) {
+                window.open(repo.url, '_blank');
+            }
+        });
 
-        const thumb = clone.querySelector('.miniatura');
+        const thumbWrapper = clone.querySelector('.miniatura');
         fetchReadmeImage(repo.owner, repo.name).then((img) => {
             if (img)
-                thumb.innerHTML = `<img src="${img}" alt="${repo.name}" loading="lazy">`;
+                thumbWrapper.innerHTML = `<img src="${img}" alt="Miniatura do Projeto ${repo.name}" loading="lazy">`;
+            else
+                thumbWrapper.innerHTML = `<i class="fa-solid fa-folder-open" style="font-size: 32px; color: var(--accent); margin-top: 24px;"></i>`;
         });
 
         projContainer.appendChild(clone);
@@ -261,9 +277,10 @@ async function renderProjects() {
     document.body.removeChild(tempDiv);
 }
 
-// --- NAVEGAÇÃO / INIT ---
 document.addEventListener('DOMContentLoaded', () => {
-    // navegação
+    const initialTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(initialTheme);
+
     const links = document.querySelectorAll('.nav-link, footer [data-target]');
     const paginas = document.querySelectorAll('.pagina');
 
@@ -272,31 +289,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = document.getElementById(id);
         if (el) el.classList.add('active');
 
-        links.forEach((l) => l.classList.remove('active'));
-        links.forEach((l) => {
-            if (l.dataset.target === id) l.classList.add('active');
-        });
+        document
+            .querySelectorAll('.links-nav .nav-link')
+            .forEach((l) => l.classList.remove('active'));
+        document
+            .querySelectorAll(`.links-nav [data-target="${id}"]`)
+            .forEach((l) => l.classList.add('active'));
+
+        if (id !== 'home') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }
 
-    const initialPage = document.querySelector('.pagina')
-        ? document.querySelector('.pagina').id
-        : 'home';
+    const urlHash = window.location.hash.replace('#', '');
+    const initialPage =
+        urlHash && document.getElementById(urlHash) ? urlHash : 'home';
     showPage(initialPage);
 
     links.forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const alvo = link.dataset.target;
-            if (alvo) showPage(alvo);
+            if (alvo) {
+                showPage(alvo);
+                history.pushState(null, '', `#${alvo}`);
+            }
         });
     });
 
-    // EVENTO DO NOVO SWITCH: Quando o checkbox muda, ele chama toggleTheme
+    window.addEventListener('popstate', () => {
+        const hash = window.location.hash.replace('#', '') || 'home';
+        showPage(hash);
+    });
+
     if (themeInput) {
         themeInput.addEventListener('change', window.toggleTheme);
     }
 
-    // renderizações iniciais
     renderCertificates();
     renderProjects();
+
+    if (window.setupTechMarquee) {
+        window.setupTechMarquee();
+    }
 });

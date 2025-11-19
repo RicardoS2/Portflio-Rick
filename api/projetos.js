@@ -1,10 +1,6 @@
-// /api/github-projects.js
-
 import fetch from 'node-fetch';
 
-// Use o seu nome de usuário do GitHub para cabeçalhos
 const GITHUB_USER = 'RicardoS2';
-// Variável de ambiente SECRETA lida do .env local ou do Vercel
 const GITHUB_PAT = process.env.GITHUB_PAT;
 
 export default async function githubProjects(req, res) {
@@ -14,8 +10,6 @@ export default async function githubProjects(req, res) {
         });
     }
 
-    // URL Definitiva: Usa o endpoint autenticado para buscar todos os repos que o token pode ver (owner e colaborador).
-    // O filtro para 'public' e 'forks' será feito no código JS abaixo.
     const url = `https://api.github.com/user/repos?affiliation=owner,collaborator&sort=updated&per_page=100`;
 
     try {
@@ -39,7 +33,6 @@ export default async function githubProjects(req, res) {
 
         const repos = await response.json();
 
-        // FILTRAGEM FINAL: Garante apenas projetos públicos, não-forks e com descrição
         const projectData = repos
             .filter(
                 (repo) =>
@@ -58,7 +51,6 @@ export default async function githubProjects(req, res) {
                 owner: repo.owner.login,
             }));
 
-        // Cachea a resposta no CDN do Vercel por 1 hora (3600 segundos)
         res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
 
         return res.status(200).json(projectData);

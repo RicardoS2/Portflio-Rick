@@ -1,10 +1,6 @@
-/* style.css - CÓDIGO FINAL OTIMIZADO COM NOVO THEME SWITCH */
-
-/* 1. MUDANÇA DE FONTE PARA MONTSERRAT */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
 
 :root {
-    /* --- MOCHA (Dark Mode - Padrão) --- */
     --bg-color: #1e1e2e;
     --bg-even: #181825;
     --text-color: #cdd6f4;
@@ -13,19 +9,27 @@
     --stripe-color: #cdd6f4;
     --stripe-bg: #1e1e2e;
     --accent: #cba6f7;
+    --accent-hover: #ddcbff;
     --footer-bg: #181825;
-    /* Variáveis para o efeito zebrado */
+    --moon-color: #cdd6f4;
+    --moon-dot-color: #2a2a3e;
+    --slider-dark-bg: #181825;
+    --cloud-dark-color: #ccc;
     --card-bgsize: 0.38rem;
-    /* Para cards pequenos (Certificados/Projetos) */
     --large-bgsize: 0.8rem;
-    /* Para blocos grandes (Hero/Even) */
     --card-offset: 0.6rem;
     --large-offset: 1.2rem;
-    --max-width: 1000px;
+    --max-width: 1200px;
+    --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.2);
+    --shadow-dark: 0 8px 20px rgba(0, 0, 0, 0.5);
+    --hover-translateY: -8px;
+}
+
+.subtitulo-pagina {
+    text-align: center;
 }
 
 :root[data-theme='light'] {
-    /* --- LATTE (Light Mode) --- */
     --bg-color: #eff1f5;
     --bg-even: #e6e9ef;
     --text-color: #1e1e2e;
@@ -34,14 +38,23 @@
     --stripe-color: #1e1e2e;
     --stripe-bg: #eff1f5;
     --accent: #8839ef;
+    --accent-hover: #b062ff;
     --footer-bg: #e6e9ef;
+    --sun-color: #ffc400;
+    --slider-light-bg: #2196f3;
+    --cloud-light-color: #eee;
+    --shadow-light: 0 3px 10px rgba(0, 0, 0, 0.1);
+    --shadow-dark: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
-/* RESET e Base */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -52,32 +65,35 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    transition: background 0.3s ease, color 0.3s ease;
+    transition: background 0.5s ease, color 0.5s ease;
     overflow-x: hidden;
 }
 
 .container {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 4px;
     width: 100%;
 }
 
 h1,
 h2,
 h3 {
+    text-align: center;
     font-weight: 800;
     letter-spacing: -0.03em;
+    transition: color 0.3s ease;
 }
 
-.font-mono {
-    font-family: 'Montserrat', sans-serif;
-}
-
-/* --- HEADER / NAVEGAÇÃO --- */
 header {
     padding: 30px 0;
-    margin-bottom: 40px;
+    margin-bottom: 25px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: var(--bg-color);
+    box-shadow: var(--shadow-light);
+    transition: background-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .navegacao {
@@ -88,15 +104,27 @@ header {
     gap: 20px;
 }
 
+.nota-secao {
+    text-align: center;
+}
+
 .logotipo {
     font-size: 1.2rem;
     font-weight: 800;
     cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.logotipo:hover {
+    color: var(--accent-hover);
+    transform: scale(1.05);
+    text-shadow: 0 0 5px var(--accent);
 }
 
 .links-nav {
     display: flex;
-    gap: 20px;
+    gap: 25px;
 }
 
 .nav-link {
@@ -104,18 +132,33 @@ header {
     color: var(--text-color);
     font-weight: 600;
     opacity: 0.7;
-    transition: opacity 0.2s;
+    position: relative;
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -5px;
+    width: 0;
+    height: 2px;
+    background-color: var(--accent);
+    transition: width 0.3s ease, left 0.3s ease;
 }
 
 .nav-link:hover,
 .nav-link.active {
     opacity: 1;
-    text-decoration: underline;
+    color: var(--accent);
 }
 
-/* ----------------------------------------------------
-    NOVO TOGGLE MODE CSS (ADAPTADO ÀS VARIÁVEIS DE TEMA)
----------------------------------------------------- */
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+    left: 0;
+}
+
 .switch {
     position: relative;
     display: inline-block;
@@ -136,86 +179,116 @@ header {
     left: 0;
     right: 0;
     bottom: 0;
-    /* Cor de fundo padrão (Light Mode/Dia - usa a cor de destaque) */
-    background-color: var(--accent);
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
+    background-color: var(--slider-dark-bg);
+    transition: background-color 0.4s;
     z-index: 0;
     overflow: hidden;
+    border-radius: 34px;
+    box-shadow: var(--shadow-light);
 }
 
 .sun-moon {
     position: absolute;
-    content: "";
+    content: '';
     height: 26px;
     width: 26px;
     left: 4px;
     bottom: 4px;
-    /* Cor do Sol (Light Mode) */
-    background-color: white;
-    -webkit-transition: 0.4s;
+    background-color: var(--moon-color);
+    transform: translateX(26px);
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        background-color 0.5s ease-in-out;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.moon-dot {
+    opacity: 1;
+    transition: opacity 0.4s;
+    fill: var(--moon-dot-color);
+}
+
+.stars {
+    transform: translateY(0);
+    opacity: 1;
     transition: 0.4s;
+    fill: var(--text-color);
+    animation-name: star-twinkle;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
 }
 
-/* Estado Checado (Dark Mode/Noite) */
+.light-ray {
+    opacity: 0;
+    transition: opacity 0.4s;
+    fill: var(--sun-color);
+    animation: pulse-ray 2s infinite ease-in-out alternate;
+    position: absolute;
+    z-index: -1;
+}
+
+.cloud-light {
+    opacity: 0;
+    fill: var(--cloud-light-color);
+    position: absolute;
+    animation-name: cloud-move;
+    animation-duration: 6s;
+    animation-iteration-count: infinite;
+    transition: opacity 0.4s;
+}
+
+.cloud-dark {
+    opacity: 1;
+    fill: var(--cloud-dark-color);
+    position: absolute;
+    animation-name: cloud-move;
+    animation-duration: 6s;
+    animation-iteration-count: infinite;
+    animation-delay: 1s;
+    transition: opacity 0.4s;
+}
+
 #input:checked+.slider {
-    /* Cor de fundo do Dark Mode (Noite - usa a cor de fundo primária) */
-    background-color: var(--bg-color);
-}
-
-#input:focus+.slider {
-    /* Cor do foco */
-    box-shadow: 0 0 1px var(--accent);
+    background-color: var(--slider-light-bg);
 }
 
 #input:checked+.slider .sun-moon {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
-    /* Cor da Lua (Dark Mode - usa a cor do texto/claro) */
-    background-color: var(--text-color);
-    /* ANIMAÇÃO DE ROTAÇÃO (DO SOL PARA A LUA) */
-    -webkit-animation: rotate-center 0.6s ease-in-out both;
-    animation: rotate-center 0.6s ease-in-out both;
-}
-
-@keyframes rotate-center {
-    0% {
-        -webkit-transform: rotate(0);
-        transform: rotate(0);
-    }
-
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
-}
-
-/* Cratera da Lua */
-.moon-dot {
-    opacity: 0;
-    transition: 0.4s;
-    /* Cor das crateras (ajustada para cor de fundo secundário do Dark Mode) */
-    fill: var(--bg-even);
+    transform: translateX(0);
+    background-color: var(--sun-color);
 }
 
 #input:checked+.slider .sun-moon .moon-dot {
+    opacity: 0;
+}
+
+#input:checked+.slider .sun-moon .light-ray {
+    opacity: 0.1;
+}
+
+#input:checked+.slider .stars {
+    transform: translateY(-32px);
+    opacity: 0;
+}
+
+#input:checked+.slider .sun-moon .cloud-dark {
+    opacity: 0;
+}
+
+#input:checked+.slider .sun-moon .cloud-light {
     opacity: 1;
 }
 
-.slider.round {
-    border-radius: 34px;
+.moon-dot,
+.stars .star,
+.light-ray,
+.cloud-light,
+.cloud-dark {
+    position: absolute;
 }
 
-.slider.round .sun-moon {
-    border-radius: 50%;
-}
-
-/* POSICIONAMENTO E ESTILO DOS SVG DENTRO DO SLIDER/SUN-MOON */
 #moon-dot-1 {
     left: 10px;
     top: 3px;
-    position: absolute;
     width: 6px;
     height: 6px;
     z-index: 4;
@@ -224,7 +297,6 @@ header {
 #moon-dot-2 {
     left: 2px;
     top: 10px;
-    position: absolute;
     width: 10px;
     height: 10px;
     z-index: 4;
@@ -233,19 +305,9 @@ header {
 #moon-dot-3 {
     left: 16px;
     top: 18px;
-    position: absolute;
     width: 3px;
     height: 3px;
     z-index: 4;
-}
-
-/* Raios de Luz do Sol */
-.light-ray {
-    position: absolute;
-    z-index: -1;
-    fill: var(--text-color);
-    /* Cor branca/clara */
-    opacity: 10%;
 }
 
 #light-ray-1 {
@@ -269,23 +331,31 @@ header {
     height: 60px;
 }
 
-/* Nuvens (Light Mode) */
-.cloud-light,
-.cloud-dark {
-    position: absolute;
-    animation-name: cloud-move;
-    animation-duration: 6s;
-    animation-iteration-count: infinite;
+#star-1 {
+    width: 20px;
+    top: 2px;
+    left: 3px;
+    animation-delay: 0.3s;
 }
 
-/* Ajuste de cores das nuvens no Light Mode (dia) */
-.cloud-light {
-    fill: #eee;
+#star-2 {
+    width: 6px;
+    top: 16px;
+    left: 3px;
 }
 
-.cloud-dark {
-    fill: #ccc;
-    animation-delay: 1s;
+#star-3 {
+    width: 12px;
+    top: 20px;
+    left: 10px;
+    animation-delay: 0.6s;
+}
+
+#star-4 {
+    width: 18px;
+    top: 0px;
+    left: 18px;
+    animation-delay: 1.3s;
 }
 
 #cloud-1 {
@@ -324,6 +394,35 @@ header {
     width: 30px;
 }
 
+@keyframes rotate-center {
+    0% {
+        -webkit-transform: rotate(0);
+        transform: rotate(0);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse-ray {
+    0% {
+        transform: scale(1);
+        opacity: 0.1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.15;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.1;
+    }
+}
+
 @keyframes cloud-move {
     0% {
         transform: translateX(0px);
@@ -342,117 +441,45 @@ header {
     }
 }
 
-/* Estrelas (Dark Mode) */
-.stars {
-    transform: translateY(-32px);
-    opacity: 0;
-    transition: 0.4s;
-    position: absolute;
-    /* Garantir que as estrelas estão posicionadas */
-    inset: 0;
-}
-
-.star {
-    fill: white;
-    position: absolute;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-    animation-name: star-twinkle;
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
-}
-
-#input:checked+.slider .stars {
-    -webkit-transform: translateY(0);
-    -ms-transform: translateY(0);
-    transform: translateY(0);
-    opacity: 1;
-}
-
-#star-1 {
-    width: 20px;
-    top: 2px;
-    left: 3px;
-    animation-delay: 0.3s;
-}
-
-#star-2 {
-    width: 6px;
-    top: 16px;
-    left: 3px;
-}
-
-#star-3 {
-    width: 12px;
-    top: 20px;
-    left: 10px;
-    animation-delay: 0.6s;
-}
-
-#star-4 {
-    width: 18px;
-    top: 0px;
-    left: 18px;
-    animation-delay: 1.3s;
-}
-
 @keyframes star-twinkle {
     0% {
         transform: scale(1);
+        opacity: 0.8;
     }
 
-    40% {
+    50% {
         transform: scale(1.2);
-    }
-
-    80% {
-        transform: scale(0.8);
+        opacity: 1;
     }
 
     100% {
         transform: scale(1);
+        opacity: 0.8;
     }
 }
 
-
-/* ==========================================================
-    CARD BASE + EFEITO 3D
-========================================================== */
 .card {
     --radius: 14px;
-
     position: relative;
     background: var(--card-bg);
     border: 2px solid var(--card-border);
     border-radius: var(--radius);
     padding: 2rem;
-    color: var(--text-color);
     z-index: 2;
-
-    transition: transform 0.2s ease;
+    box-shadow: var(--shadow-light);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        box-shadow 0.4s ease, border-color 0.4s ease, transform-origin 0.4s ease;
     animation: fadeInUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
     opacity: 0;
 }
 
-/* Tornando o card interativo */
 .card.interativo {
     cursor: pointer;
     margin-bottom: 24px;
-    transition: transform 0.2s ease, height 0.3s ease;
 }
 
-/* Elevação no hover */
-.card.interativo:hover {
-    transform: translateY(-8px);
-}
-
-/* -------------------------
-    3D FINAL — CAMADAS FIXAS (Para cards pequenos: Certificados/Projetos)
---------------------------*/
-
-/* CAMADA 1: Placa sólida (atrás e alinhada) */
 .card.interativo::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     background: var(--card-bg);
@@ -460,238 +487,112 @@ header {
     z-index: -1;
 }
 
-/* CAMADA 2: Fundo zebrado deslocado (BASE DO EFEITO) */
 .card.interativo::after {
-    content: "";
+    content: '';
     position: absolute;
     top: var(--card-offset);
     left: var(--card-offset);
     right: calc(0px - var(--card-offset));
     bottom: calc(0px - var(--card-offset));
-
     background-size: var(--card-bgsize) var(--card-bgsize);
     background-image: linear-gradient(45deg,
-            var(--stripe-bg) 25%, var(--stripe-color) 25%,
-            var(--stripe-color) 50%, var(--stripe-bg) 50%,
-            var(--stripe-bg) 75%, var(--stripe-color) 75%,
+            var(--stripe-bg) 25%,
+            var(--stripe-color) 25%,
+            var(--stripe-color) 50%,
+            var(--stripe-bg) 50%,
+            var(--stripe-bg) 75%,
+            var(--stripe-color) 75%,
             var(--stripe-color) 100%);
     border-radius: inherit;
     z-index: -2;
-
-    transition: transform 0.25s ease;
+    transition: transform 0.3s ease;
 }
 
-/* Movimento suave da estampa */
 .card.interativo:hover::after {
-    transform: translate(2px, 2px);
+    transform: translate(6px, 6px);
 }
 
-/* ==========================================================
-    HERO / EVEN / CONTATO
-========================================================== */
-
-/* NOVO: Efeito zebrado aplicado ao bloco Hero + BORDA solicitada */
-.hero-block {
-    position: relative;
-    /* ADICIONA A BORDA AO HERO BLOCK */
-    border: 2px solid var(--card-border);
-    border-radius: 18px;
-    /* Valor fixo para bordas maiores no Hero */
-    padding: 2rem;
-    margin-bottom: 40px;
-    background: var(--bg-even);
-    /* Fundo sutilmente diferente */
-    z-index: 1;
-    animation: fadeInUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
-    opacity: 0;
+.card.interativo:hover {
+    transform: translateY(var(--hover-translateY)) scale(1.01);
+    box-shadow: var(--shadow-dark), 0 0 15px var(--accent);
+    border-color: var(--accent);
 }
 
-.hero-block::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: var(--bg-even);
-    border-radius: inherit;
-    z-index: -1;
-}
-
-.hero-block::after {
-    content: "";
-    position: absolute;
-    top: var(--large-offset);
-    left: var(--large-offset);
-    right: calc(0px - var(--large-offset));
-    bottom: calc(0px - var(--large-offset));
-
-    background-size: var(--large-bgsize) var(--large-bgsize);
-    background-image: linear-gradient(45deg,
-            var(--stripe-bg) 25%, var(--stripe-color) 25%,
-            var(--stripe-color) 50%, var(--stripe-bg) 50%,
-            var(--stripe-bg) 75%, var(--stripe-color) 75%,
-            var(--stripe-color) 100%);
-    border-radius: inherit;
-    z-index: -2;
-}
-
-.hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 40px;
-    align-items: center;
-    /* Remover margem bottom, pois o .hero-block já tem */
-    margin-bottom: 0;
-    /* O card interno é transparente e sem borda */
-    background: transparent;
-    border: none;
-    padding: 0;
-    opacity: 1;
-    /* Ignorar animação de fade-in do .card */
-}
-
-/* Garantir que o conteúdo do Hero fique na frente do zebrado */
-.hero-content {
-    position: relative;
-    z-index: 3;
-}
-
-.foto-wrapper img {
-    width: 100%;
-    border-radius: 12px;
-    border: 2px solid var(--card-border);
-    max-height: 360px;
-    object-fit: cover;
-}
-
-/* BOTÃO HERO */
-.btn-hero {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 12px 24px;
-    background: var(--card-bg);
-    border: 2px solid var(--accent);
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 800;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 4px 4px 0 var(--accent);
-}
-
-.btn-hero:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 0 0 0 var(--accent);
-    background: var(--accent);
-    color: var(--bg-color);
-}
-
-/* SEÇÃO .even (Projetos/Contato - Fundo cinza) */
-.pagina.even {
-    padding: 50px 0;
-    /* Hack para esticar o fundo cinza de ponta a ponta */
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
-    width: 100vw;
-    background-color: var(--bg-even);
-}
-
-.pagina.even .container {
-    padding-left: 24px;
-    padding-right: 24px;
-}
-
-/* ==========================================================
-    TECHS QUE EU USO (CARROSSEL)
-========================================================== */
-.tech-section {
-    margin-top: 18px;
-    padding-top: 16px;
-    margin-bottom: 40px;
-}
-
-.tech-title {
-    text-align: center;
-    font-size: 1.1rem;
-    margin-bottom: 12px;
-    font-weight: 800;
-}
-
-/* CORREÇÃO: Usar flexbox para o track e remover a margem/padding que poderia 'grudar' */
-.tech-carousel {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-    padding: 12px 0;
-}
-
-/* Adicionando a animação de marquee */
-.tech-track.marquee {
-    animation: marquee-animate 30s linear infinite;
-}
-
-.tech-track {
-    display: flex;
-    gap: 16px;
-    /* Espaçamento entre os itens */
-    align-items: center;
-    will-change: transform;
-}
-
-.tech-item {
-    /* min-width garante que o item não encolha */
-    min-width: 120px;
-    height: 80px;
+/* --- ESTILO DOS CERTIFICADOS ATUALIZADO --- */
+.certificado-card {
+    transform-origin: center center;
+    /* Novas propriedades para centralizar e formatar */
     display: flex;
     flex-direction: column;
-    gap: 6px;
     align-items: center;
+    text-align: center;
+    min-height: 220px;
+}
+
+.icone-recurso {
+    font-size: 2.5rem;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
     justify-content: center;
-    background: var(--card-bg);
-    border: 2px solid var(--card-border);
-    border-radius: 12px;
-    padding: 8px 12px;
-    font-weight: 700;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-    transform: translateZ(0);
-    user-select: none;
-    /* CORREÇÃO: Garantir que não haja margens externas desnecessárias */
-    margin: 0;
+    align-items: center;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transition: all 0.3s ease;
 }
 
-.tech-item .icon {
-    font-size: 28px;
-    line-height: 1;
+.certificado-card:hover .icone-recurso {
+    border-color: var(--accent-hover);
+    color: var(--accent-hover);
+    transform: rotate(5deg) scale(1.1);
 }
 
-.tech-item .label {
-    font-size: 0.8rem;
-    opacity: 0.9;
+.certificado-card h3 {
+    margin-bottom: 0.4rem;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
 }
 
-/* ==========================================================
-    4. PROJETOS — GRADE + EXPANDIR
-========================================================== */
+.certificado-card p {
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+/* O certificado-card agora herda o hover de .card.interativo:hover, que inclui o efeito ::after. */
+
+.certificado-card:hover h3 {
+    color: var(--accent-hover);
+}
+
+/* Fim do Estilo dos Certificados */
+
+
 .grid-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 32px;
+    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
-.card.interativo.projeto-card {
+/**
+ * ALTERAÇÃO AQUI: removido 'overflow: hidden' de .projeto-card
+ * para garantir que o efeito zebrado (o pseudo-elemento ::after)
+ * e a sombra sejam visíveis fora da borda, como nos outros cartões interativos.
+ **/
+.projeto-card {
     display: flex;
     flex-direction: column;
     height: 320px;
-    min-height: 300px;
-    max-height: 400px;
     position: relative;
-    /* Reafirma position relative para o z-index */
-    z-index: 2;
-    /* Garante que o conteúdo do card fique acima do zebrado */
-    transition: transform 0.2s ease, height 0.3s ease, max-height 0.3s ease;
+    /* overflow: hidden; */
 }
 
-.card.interativo.projeto-card.expanded {
+.projeto-card.expanded {
     height: auto;
-    max-height: none;
+    overflow: visible;
 }
 
 .miniatura {
@@ -702,9 +603,6 @@ header {
     border-radius: 8px;
     margin-bottom: 16px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .miniatura img {
@@ -719,19 +617,14 @@ header {
     margin-bottom: 10px;
     max-height: 4.2em;
     line-height: 1.4;
-    transition: max-height 0.3s ease-out;
+    -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
 }
 
 .desc-projeto.expanded {
     max-height: none;
     -webkit-mask-image: none !important;
     mask-image: none !important;
-}
-
-/* Máscara de fade-out para textos não expandidos */
-.desc-projeto:not(.expanded) {
-    -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
-    mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
 }
 
 .meta-projeto {
@@ -742,8 +635,7 @@ header {
     justify-content: space-between;
     font-weight: 700;
     text-transform: uppercase;
-    /* O ideal seria usar var(--card-border) aqui, mas a borda dashed foi mantida conforme o seu código */
-    border-top: 1px dashed rgba(205, 214, 244, 0.1);
+    border-top: 1px dashed var(--card-border);
 }
 
 .btn-expandir-desc {
@@ -758,28 +650,330 @@ header {
     font-weight: 800;
     cursor: pointer;
     text-align: left;
-    transition: color 0.2s;
+    transition: color 0.3s ease, background 0.3s ease;
     z-index: 10;
 }
 
-.btn-expandir-desc:hover {
+.projeto-card.expanded .btn-expandir-desc {
+    position: static;
+    background: none;
+    margin-top: 10px;
+}
+
+.hero-block {
+    position: relative;
+    border: 2px solid var(--card-border);
+    border-radius: 18px;
+    padding: 2rem;
+    margin-bottom: 40px;
+    background: var(--bg-even);
+    z-index: 1;
+    box-shadow: var(--shadow-dark);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-block:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5), 0 0 20px var(--accent);
+}
+
+.hero-block::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--bg-even);
+    border-radius: inherit;
+    z-index: -1;
+}
+
+.hero-block::after {
+    content: '';
+    position: absolute;
+    top: var(--large-offset);
+    left: var(--large-offset);
+    right: calc(0px - var(--large-offset));
+    bottom: calc(0px - var(--large-offset));
+    background-size: var(--large-bgsize) var(--large-bgsize);
+    background-image: linear-gradient(45deg,
+            var(--stripe-bg) 25%,
+            var(--stripe-color) 25%,
+            var(--stripe-color) 50%,
+            var(--stripe-bg) 50%,
+            var(--stripe-bg) 75%,
+            var(--stripe-color) 75%,
+            var(--stripe-color) 100%);
+    border-radius: inherit;
+    z-index: -2;
+    transition: transform 0.3s ease;
+}
+
+.hero-block:hover::after {
+    transform: translate(8px, 8px);
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 0;
+    background: transparent;
+    border: none;
+    padding: 0;
+    opacity: 1;
+}
+
+.foto-wrapper img {
+    width: 100%;
+    border-radius: 12px;
+    border: 2px solid var(--card-border);
+    max-height: 360px;
+    object-fit: cover;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.foto-wrapper img:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-dark);
+}
+
+.btn-hero {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 12px 24px;
+    background: var(--card-bg);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 800;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 4px 4px 0 var(--accent);
+}
+
+.btn-hero:hover {
+    transform: translate(0, 0);
+    box-shadow: 0 0 0 var(--accent-hover);
+    background: var(--accent-hover);
+    color: var(--bg-color);
+}
+
+.btn-hero:active {
+    transform: scale(0.95);
+}
+
+.pagina.even {
+    padding: 50px 0;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    width: 100vw;
+    transition: background-color 0.5s ease;
+}
+
+.pagina.even .container {
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.tech-section {
+    margin-top: 18px;
+    padding-top: 16px;
+    margin-bottom: 40px;
+}
+
+.tech-title {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    font-weight: 800;
+}
+
+.tech-carousel {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 12px 0;
+    -webkit-mask-image: linear-gradient(to right,
+            transparent,
+            black 15%,
+            black 85%,
+            transparent);
+    mask-image: linear-gradient(to right,
+            transparent,
+            black 15%,
+            black 85%,
+            transparent);
+}
+
+.tech-track-holder {
+    white-space: nowrap;
+    will-change: transform;
+}
+
+.tech-track-wrapper {
+    display: flex;
+    width: max-content;
+}
+
+.tech-track-holder.marquee .tech-track-wrapper {
+    animation: marquee-animate 30s linear infinite;
+}
+
+.tech-carousel:hover .tech-track-holder.marquee .tech-track-wrapper {
+    animation-play-state: paused;
+}
+
+.tech-track {
+    display: flex;
+    gap: 16px;
+    margin: 20px;
+    align-items: center;
+}
+
+.tech-item {
+    min-width: 120px;
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-weight: 700;
+    box-shadow: var(--shadow-light);
+    user-select: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease,
+        background-color 0.3s ease, color 0.3s ease;
+}
+
+.tech-item:hover {
+    transform: translateY(-6px) scale(1.08);
+    box-shadow: var(--shadow-dark), 0 0 10px var(--accent-hover);
+    background-color: var(--accent);
+    color: var(--bg-color);
+}
+
+.tech-item:hover .icon,
+.tech-item:hover .label {
+    color: var(--bg-color);
+}
+
+.tech-item .icon {
+    font-size: 28px;
+    line-height: 1;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.tech-item .label {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+@keyframes marquee-animate {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(var(--track-width));
+    }
+}
+
+.contato-card {
+    padding: 30px;
+    margin-top: 40px;
+    transform: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contato-card.interativo:hover {
+    transform: translateY(var(--hover-translateY));
+    box-shadow: var(--shadow-dark);
+}
+
+.contato-card .titulo-pagina {
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 2rem;
     color: var(--text-color);
 }
 
-.card.expanded .btn-expandir-desc {
-    position: static;
-    margin-bottom: 10px;
-    background: none;
+.contato-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-/* ==========================================================
-    FOOTER
-========================================================== */
+.contato-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border-bottom: 2px solid var(--card-border);
+    padding: 8px 0;
+    transition: border-color 0.3s ease, transform 0.3s ease,
+        background-color 0.3s ease, padding-left 0.3s ease;
+}
+
+.contato-link:hover {
+    border-bottom: 2px solid var(--accent);
+    transform: translateX(10px);
+    background-color: var(--bg-even);
+    padding-left: 10px;
+}
+
+.contato-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.contato-box i {
+    font-size: 28px;
+    color: var(--accent);
+    min-width: 30px;
+    text-align: center;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.contato-link:hover .contato-box i {
+    color: var(--accent-hover);
+    transform: rotate(10deg) scale(1.2);
+}
+
+.contato-box strong {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.contato-link:hover .contato-box strong {
+    color: var(--accent);
+}
+
+.contato-box span {
+    margin-left: auto;
+    font-size: 0.95rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.contato-link:hover .contato-box span {
+    opacity: 1;
+}
+
 #rodape {
     margin-top: auto;
     padding: 60px 0 40px;
     background-color: var(--footer-bg);
     border-top: 1px solid var(--card-border);
+    transition: background-color 0.4s ease, border-color 0.4s ease;
 }
 
 .rodape-content {
@@ -798,6 +992,11 @@ header {
 .rodape-logo {
     font-weight: 800;
     font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.rodape-logo:hover {
+    color: var(--accent);
 }
 
 .rodape-links a {
@@ -807,6 +1006,19 @@ header {
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
+    position: relative;
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.rodape-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0;
+    height: 1px;
+    background-color: var(--accent);
+    transition: width 0.3s ease;
 }
 
 .rodape-links a:hover {
@@ -814,9 +1026,10 @@ header {
     color: var(--accent);
 }
 
-/* ==========================================================
-    ANIMAÇÕES
-========================================================== */
+.rodape-links a:hover::after {
+    width: 100%;
+}
+
 .pagina {
     display: none;
     animation: fadeIn 0.4s ease;
@@ -850,21 +1063,6 @@ header {
     }
 }
 
-/* ANIMAÇÃO DE MARQUEE (Carrossel Contínuo) */
-@keyframes marquee-animate {
-    from {
-        transform: translateX(0);
-    }
-
-    /* Move o track exatamente a metade do tamanho do wrapper, fazendo a transição parecer infinita */
-    to {
-        transform: translateX(-50%);
-    }
-}
-
-/* ==========================================================
-    RESPONSIVO
-========================================================== */
 @media (max-width: 768px) {
     .hero-grid {
         grid-template-columns: 1fr;
@@ -873,7 +1071,6 @@ header {
 
     .foto-wrapper img {
         max-height: 250px;
-        /* Ajuste para mobile */
     }
 
     .navegacao {
@@ -890,9 +1087,28 @@ header {
     }
 
     .pagina.even {
-        /* Remove o hack de largura total em telas pequenas para evitar rolagem horizontal */
+        padding: 15px 0;
+        /* Ajustado para 15px 0 para uniformizar */
         margin-left: 0;
         margin-right: 0;
         width: 100%;
+    }
+}
+
+@media (max-width: 500px) {
+    .contato-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .contato-box strong {
+        font-size: 1rem;
+    }
+
+    .contato-box span {
+        font-size: 0.85rem;
+        margin-left: 46px;
+        margin-top: -6px;
     }
 }
