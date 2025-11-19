@@ -1,4 +1,5 @@
-### AL ###
+
+
 #Template for AL projects for Dynamics 365 Business Central
 #launch.json folder
 .vscode/
@@ -14,6 +15,11 @@
 *.app
 #Rapid Application Development File
 rad.json
+# Diretórios de dependências
+/node_modules
+
+# Bloqueio de pacotes
+package-lock.json
 #Translation Base-file
 *.g.xlf
 #License-file
@@ -21,5 +27,46 @@ rad.json
 #Test results file
 TestResults.xml
 .vercel
+
+Node.js and npm
+
+Dependências do Node
+
+/node_modules
+/npm-debug.log
+/yarn-error.log
+/pnpm-debug.log
+/package-lock.json
+
+Logs e Caches
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+Ambiente e Segredos (Vercel)
+
+Arquivos de ambiente local (MUITO importante para segredos)
+
 .env
-.env*
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+Build e Distribuição
+
+Diretórios de build/dist (se usar Webpack, Rollup, etc.)
+
+/dist
+/build
+/out
+/public/dist
+
+Outros Arquivos Temporários
+
+*.log
+*.tmp
+*.bak
