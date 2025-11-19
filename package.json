@@ -1,0 +1,24 @@
+{
+  "name": "portflio-rick",
+  "version": "1.0.0",
+  "description": "<img width=\"1020\" height=\"439\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ebe54e12-cd4a-472a-bd1b-78831a62b031\" />",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RicardoS2/Portflio-Rick.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/RicardoS2/Portflio-Rick/issues"
+  },
+  "homepage": "https://github.com/RicardoS2/Portflio-Rick#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
