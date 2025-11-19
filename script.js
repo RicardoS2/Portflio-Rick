@@ -33,7 +33,7 @@ const certificationsData = [
         name: '14ª SITEC - Org',
         desc: 'Comissão Organizadora SITEC.',
         icon: '🛡️',
-        url: 'https://drive.google.com/file/d/127vefTmeRX5yg-ezy3BcCNbcCNbcNpxEuMZN/view?usp=sharing',
+        url: 'https://drive.google.com/file/d/127vefTmeRX5yg-ezy3BcCNbcNpxEuMZN/view?usp=sharing',
     },
 ];
 
