@@ -763,7 +763,7 @@ header {
 }
 
 .pagina.even {
-    padding: 50px 0;
+    padding: 20px 0;
     margin-left: calc(-50vw + 50%);
     margin-right: calc(-50vw + 50%);
     width: 100vw;
@@ -874,7 +874,6 @@ header {
     color: var(--text-color);
     transition: color 0.3s ease;
 }
-
 @keyframes marquee-animate {
     from {
         transform: translateX(0);
@@ -887,7 +886,6 @@ header {
 
 .contato-card {
     padding: 30px;
-    margin-top: 40px;
     transform: none;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
